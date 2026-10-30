@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cozy Fit</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#000000;--card:#141414;--ink:#F8EFE8;--soft:#C5CCE8;--berry:#FFFFFF;--butter:#F6D977;--blush:#1B2F7A;--on-berry:#3B2016;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Bricolage Grotesque',system-ui,sans-serif;font-weight:500;line-height:1.4}
+main{max-width:480px;margin:0 auto;padding:24px 18px 48px}
+h1{font-weight:800;font-size:clamp(44px,13vw,64px);line-height:.95;letter-spacing:-.03em;margin:8px 0 18px}
+h2{font-weight:800;font-size:26px;letter-spacing:-.02em;margin:0 0 12px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.streak{background:var(--butter);color:#2B1A2E;font-weight:800;border-radius:999px;padding:8px 14px}
+.name{background:none;border:0;border-bottom:3px solid var(--berry);color:var(--ink);font:inherit;font-weight:800;width:9ch;padding:0}
+.card{background:var(--card);border-radius:28px;padding:20px;margin-bottom:16px}
+.ring-row{display:flex;align-items:center;gap:18px}
+.ring{width:110px;height:110px;flex:none}
+.ring text{font-family:inherit;font-weight:800;font-size:26px;fill:var(--ink)}
+.big{font-weight:800;font-size:22px;margin:0}
+.muted{color:var(--soft);margin:2px 0 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--berry);outline-offset:2px}
+.chip{border:2px solid var(--ink);background:transparent;color:var(--ink);font-weight:800;border-radius:999px;padding:8px 16px}
+.chip[aria-pressed="true"]{background:#1B2F7A;border-color:#1B2F7A;color:var(--ink)}
+.ex{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--blush);color:var(--ink);border:0;border-radius:20px;padding:14px 16px;margin-bottom:10px}
+.ex .box{width:30px;height:30px;border-radius:50%;border:3px solid var(--ink);flex:none;display:grid;place-items:center;font-weight:800}
+.ex .t{font-weight:800;font-size:19px;display:block}
+.ex .d{color:var(--soft);font-size:14px}
+.ex[aria-pressed="true"]{background:var(--berry);color:var(--on-berry)}
+.ex[aria-pressed="true"] .box{background:var(--butter);border-color:var(--butter);color:#2B1A2E}
+.ex[aria-pressed="true"] .t{text-decoration:line-through;text-decoration-thickness:3px}
+.ex[aria-pressed="true"] .d{color:var(--on-berry)}
+.cups{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+.cup{aspect-ratio:1/1.3;border:3px solid var(--ink);border-radius:6px 6px 14px 14px;background:transparent;padding:0}
+.cup[aria-pressed="true"]{background:var(--berry);border-color:var(--berry)}
+.msg{font-weight:800;font-size:20px;margin:12px 0 0}.wrap{margin-bottom:14px}.wrap .ex{margin-bottom:0}.watch{display:inline-block;margin-top:6px;padding:8px 12px;color:var(--butter);font-weight:800}
+.reset{background:none;border:0;color:var(--soft);font-weight:800;text-decoration:underline;margin-top:6px}
+@media (prefers-reduced-motion:no-preference){.ring circle.v{transition:stroke-dashoffset .5s}.ex{transition:background .2s}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <span id="date" class="muted"></span>
+    <span class="streak" id="streak">0 day streak</span>
+  </div>
+  <h1>Move a little.<br>Feel a lot.</h1>
+  <p class="big">Hi, <input class="name" id="name" maxlength="12" placeholder="your name" aria-label="Your name"></p>
+
+  <section class="card" aria-labelledby="h-prog">
+    <div class="ring-row">
+      <svg class="ring" viewBox="0 0 120 120" role="img" aria-label="Workout progress">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--blush)" stroke-width="14"/>
+        <circle class="v" id="arc" cx="60" cy="60" r="50" fill="none" stroke="var(--berry)" stroke-width="14" stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="314.16" transform="rotate(-90 60 60)"/>
+        <text x="60" y="69" text-anchor="middle" id="pct">0%</text>
+      </svg>
+      <div>
+        <h2 id="h-prog" style="margin:0">Today</h2>
+        <p class="muted" id="count">0 of 5 done</p>
+      </div>
+    </div>
+    <p class="msg" id="msg">Pick a workout to start.</p>
+  </section>
+
+  <section class="card" aria-labelledby="h-work">
+    <h2 id="h-work">Choose your workout</h2>
+    <div class="chips" id="chips"></div>
+    <div id="list"></div>
+    <button class="reset" id="reset">Start over</button>
+  </section>
+
+  <section class="card" aria-labelledby="h-water">
+    <h2 id="h-water">Water</h2>
+    <div class="cups" id="cups"></div>
+    <p class="muted" id="wcount">0 of 8 cups</p>
+  </section>
+</main>
+<script>
+var WORKOUTS={
+ "Full body":[["Jumping jacks","30 seconds"],["Squats","12 reps"],["Push-ups","8 reps"],["Plank","30 seconds"],["Glute bridges","12 reps"]],
+ "Lower body":[["Squats","15 reps"],["Reverse lunges","10 each leg"],["Wall sit","30 seconds"],["Calf raises","20 reps"],["Glute bridges","15 reps"]],
+ "Core":[["Dead bug","10 each side"],["Plank","30 seconds"],["Bicycle crunches","20 reps"],["Bird dog","8 each side"],["Side plank","20 seconds each"]],
+ "Gentle stretch":[["Cat-cow","10 slow breaths"],["Child’s pose","45 seconds"],["Hamstring stretch","30 seconds each"],["Shoulder rolls","10 reps"],["Neck release","20 seconds each"]]
+};
+var MSGS=["Pick a workout to start.","Nice start. Keep going.","You’re warming up.","Halfway there.","Almost done.","Workout done. Great job!"];
+var S={focus:"Full body",done:[],water:0,name:"",day:"",streak:0,last:""};
+function today(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
+function load(){try{var r=localStorage.getItem("cozyfit");if(r){var o=JSON.parse(r);for(var k in o)S[k]=o[k];}}catch(e){}
+ if(S.day!==today()){S.day=today();S.done=[];S.water=0;}}
+function save(){try{localStorage.setItem("cozyfit",JSON.stringify(S));}catch(e){}}
+function yesterday(){var d=new Date();d.setDate(d.getDate()-1);return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
+function render(){
+ var ex=WORKOUTS[S.focus],n=ex.length,c=S.done.length;
+ document.getElementById("date").textContent=new Date().toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
+ var live=(S.last===today()||S.last===yesterday())?S.streak:0;
+ document.getElementById("streak").textContent=live+" day streak";
+ document.getElementById("name").value=S.name;
+ var p=Math.round(c/n*100);
+ document.getElementById("pct").textContent=p+"%";
+ document.getElementById("arc").setAttribute("stroke-dashoffset",314.16*(1-c/n));
+ document.getElementById("count").textContent=c+" of "+n+" done";
+ document.getElementById("msg").textContent=MSGS[Math.round(c/n*5)];
+ var ch=document.getElementById("chips");ch.innerHTML="";
+ Object.keys(WORKOUTS).forEach(function(k){var b=document.createElement("button");b.className="chip";b.textContent=k;b.setAttribute("aria-pressed",k===S.focus);
+  b.onclick=function(){S.focus=k;S.done=[];save();render();};ch.appendChild(b);});
+ var l=document.getElementById("list");l.innerHTML="";
+ ex.forEach(function(e,i){var b=document.createElement("button");b.className="ex";var on=S.done.indexOf(i)>-1;b.setAttribute("aria-pressed",on);
+  b.innerHTML='<span class="box">'+(on?"✓":"")+'</span><span><span class="t"></span><span class="d"></span></span>';
+  b.querySelector(".t").textContent=e[0];b.querySelector(".d").textContent=e[1];
+  b.onclick=function(){var j=S.done.indexOf(i);if(j>-1)S.done.splice(j,1);else S.done.push(i);
+   if(S.done.length===n&&S.last!==today()){S.streak=(S.last===yesterday())?S.streak+1:1;S.last=today();}
+   save();render();};var w=document.createElement("div");w.className="wrap";w.appendChild(b);var a=document.createElement("a");a.className="watch";a.href="https://www.youtube.com/results?search_query="+encodeURIComponent(e[0]+" exercise how to");a.target="_blank";a.rel="noopener";a.textContent="Watch how to do it";w.appendChild(a);l.appendChild(w);});
+ var cu=document.getElementById("cups");cu.innerHTML="";
+ for(var i=0;i<8;i++){(function(i){var b=document.createElement("button");b.className="cup";b.setAttribute("aria-pressed",i<S.water);b.setAttribute("aria-label","Cup "+(i+1));
+  b.onclick=function(){S.water=(S.water===i+1)?i:i+1;save();render();};cu.appendChild(b);})(i);}
+ document.getElementById("wcount").textContent=S.water+" of 8 cups";
+}
+document.getElementById("name").addEventListener("input",function(e){S.name=e.target.value;save();});
+document.getElementById("reset").onclick=function(){S.done=[];save();render();};
+load();render();
+</script>
+</body>
+</html>
